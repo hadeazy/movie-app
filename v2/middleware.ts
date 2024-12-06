@@ -3,23 +3,38 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  // List of public paths that don't require authentication
+  const publicPaths = ['/login', '/register'];
+  const isPublicPath = publicPaths.some(path => request.nextUrl.pathname.startsWith(path));
+
+  // Get the Firebase auth token from cookies
   const authToken = request.cookies.get('auth-token');
 
-  // List of protected paths
-  const protectedPaths = ['/acc'];
+  // Redirect to login if accessing a protected route without auth
+  if (!isPublicPath && !authToken) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('from', request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
-  // Check if the requested path is protected
-  const isProtectedPath = protectedPaths.some(path =>
-    request.nextUrl.pathname.startsWith(path)
-  );
-
-  if (isProtectedPath && !authToken) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  // Redirect to dashboard if accessing auth pages while logged in
+  if (isPublicPath && authToken) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return NextResponse.next();
 }
 
+// Update the config to include all paths except public ones
 export const config = {
-  matcher: ['/dashboard/:path*', '/movies/:path*'],
+  matcher: [
+    /*
+     * Match all request paths except:
+     * 1. /api routes
+     * 2. /_next (Next.js internals)
+     * 3. /_static (static files)
+     * 4. /favicon.ico, /manifest.json (static files)
+     */
+    '/((?!api|_next|_static|favicon.ico|manifest.json).*)',
+  ],
 };

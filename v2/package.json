@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "next dev",
     "build": "next build",
-    "build:mobile": "next build --config next.config.capacitor.js",
-    "cap:sync": "npm run build:mobile && npx cap sync"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.0",
