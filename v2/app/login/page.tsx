@@ -19,7 +19,21 @@ export default function LoginPage() {
     setError('');
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Get the Firebase ID token
+      const idToken = await user.getIdToken();
+
+      // Store the token in cookies (or localStorage)
+      document.cookie = `auth-token=${idToken}; path=/;`;
+
+      // Use the user's UID to fetch data specific to that user
+      const userId = user.uid;
+
+      // Call a backend API or Firestore to fetch data for the authenticated user
+      fetchUserData(userId);
+
       const returnUrl = searchParams.get('from') || '/';
       router.push(returnUrl);
     } catch (error: any) {
@@ -27,6 +41,7 @@ export default function LoginPage() {
       setError(error.message);
     }
   };
+
 
   // Check if user is already logged in
   useEffect(() => {
