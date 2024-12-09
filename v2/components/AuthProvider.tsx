@@ -21,19 +21,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(user)
             setLoading(false)
 
-            if (!user && !pathname.includes('/login') && !pathname.includes('/register')) {
+            // If user is logged in and on login/register page, redirect to home
+            if (user && (pathname === '/login' || pathname === '/register')) {
+                router.push('/')
+            }
+            // If no user and not on auth pages, redirect to login
+            else if (!user && !pathname.includes('/login') && !pathname.includes('/register')) {
                 router.push('/login')
             }
         })
 
         return () => unsubscribe()
     }, [pathname])
-
-    if (loading) {
-        return <div className="min-h-screen bg-[#0B0C0F] flex items-center justify-center">
-            <div className="text-white">Loading...</div>
-        </div>
-    }
 
     return (
         <AuthContext.Provider value={{ user }}>

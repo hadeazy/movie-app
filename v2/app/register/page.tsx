@@ -46,7 +46,7 @@ export default function RegisterPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log('Account created successfully:', userCredential.user);
-      router.push('/');
+      router.push('/login');
     } catch (err: any) {
       console.error('Registration error:', err);
       switch (err.code) {
